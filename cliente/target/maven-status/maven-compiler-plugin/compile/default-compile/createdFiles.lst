@@ -1,0 +1,5 @@
+com\curso\cliente\controller\EjemplaresController.class
+com\curso\cliente\service\EjemplaresService.class
+com\curso\cliente\ClienteApplication.class
+com\curso\cliente\model\Ejemplar.class
+com\curso\cliente\service\impl\EjemplaresServiceImpl.class
