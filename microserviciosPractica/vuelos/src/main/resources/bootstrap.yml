@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: vuelo
+  cloud:
+    config:
+      uri: http://localhost:7777

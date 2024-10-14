@@ -1,0 +1,7 @@
+FROM openjdk:17-jdk-alpine
+WORKDIR /app
+COPY reservas.jar /app/reservas.jar
+# Expone el puerto que utiliza el Config Server
+EXPOSE 8083
+
+ENTRYPOINT ["java", "-jar", "/app/reservas.jar"]

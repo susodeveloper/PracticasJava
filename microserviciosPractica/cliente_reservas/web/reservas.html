@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <title>Reserva de Vuelos y Hoteles</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div ng-app="reservas" ng-controller="reservasController as ctrl">
+        <h1>Reservar Vuelos y Hoteles</h1>
+        <br />
+        <div>
+            <h2>Hoteles</h2><br/>
+            <table border="1" class="table table-striped table-bordered" ng-init="cargarHotel()">
+                <thead>
+                    <tr>
+                        <th>IdHotel</th>
+                        <th>Nombre</th>
+                        <th>Categoria</th>
+                        <th>Precio</th>
+                        <th>Disponible</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="hotel in hoteles">
+                        <td>{{hotel.idHotel}}</td>
+                        <td>{{hotel.nombre}}</td>
+                        <td>{{hotel.categoria}}</td>
+                        <td>{{hotel.precio}}</td>
+                        <td>{{hotel.disponible}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br /><h2>Vuelos</h2><br/>
+            <table border="1" class="table table-striped table-bordered" ng-init="cargarVuelo()">
+                <thead>
+                <tr>
+                    <th>IdVuelo</th>
+                    <th>Compañía</th>
+                    <th>Fecha</th>
+                    <th>Precio</th>
+                    <th>Plazas Disponibles</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="vuelo in vuelos">
+                    <td>{{vuelo.idVuelo}}</td>
+                    <td>{{vuelo.compania}}</td>
+                    <td>{{vuelo.fecha}}</td>
+                    <td>{{vuelo.precio}}</td>
+                    <td>{{vuelo.plazasDisponibles}}</td>
+                </tbody>
+            </table>
+            <br /><h2>Reservas</h2><br/>
+            <table border="1" class="table table-striped table-bordered" ng-init="cargarReserva()">
+                <thead>
+                <tr>
+                    <th>IdReserva</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>IdHotel</th>
+                    <th>IdVuelo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="reserva in reservas">
+                    <td>{{reserva.idReserva}}</td>
+                    <td>{{reserva.nombre}}</td>
+                    <td>{{reserva.dni}}</td>
+                    <td>{{reserva.idHotel}}</td>
+                    <td>{{reserva.idVuelo}}</td>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <a href="nuevareserva.html" class="btn btn-primary">Nueva Reserva</a>
+    </div>
+    <script>
+        var app = angular.module('reservas', []);
+        app.controller('reservasController', function($scope, $http) {
+            $scope.cargarHotel = function() {
+                $http.get("http://localhost:9000/shotel/hoteles")
+                    .then(function(response) {
+                        $scope.hoteles = response.data;
+                    });
+            };
+            $scope.cargarVuelo = function() {
+                $http.get("http://localhost:9000/svuelo/vuelos/0")
+                    .then(function(response) {
+                        $scope.vuelos = response.data;
+                    });
+            };
+            $scope.cargarReserva = function() {
+                $http.get("http://localhost:9000/sreserva/reserva/all")
+                    .then(function(response) {
+                        $scope.reservas = response.data;
+                    });
+            };
+        });
+
+    </script>
+</body>
+</html>

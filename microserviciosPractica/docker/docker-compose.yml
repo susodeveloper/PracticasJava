@@ -1,0 +1,144 @@
+version: '3'
+
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: agencia
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - springcloud-net
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Config Server
+  config_server:
+    image: config_server_image  # Imagen del config server
+    container_name: config_server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "7777:7777"
+    networks:
+      - springcloud-net
+    depends_on:
+      - mysql
+
+  # Eureka Server
+  eureka_server:
+    image: eureka_server_image  # Imagen del eureka server
+    container_name: eureka_server
+    ports:
+      - "8761:8761"
+    networks:
+      - springcloud-net
+    depends_on:
+      - config_server
+
+  # Gateway
+  gateway:
+    image: gateway_image  # Imagen del gateway
+    container_name: gateway
+    ports:
+      - "9000:9000"
+    networks:
+      - springcloud-net
+    depends_on:
+      - eureka_server
+      - config_server
+
+  # Servicio de Cliente de Reservas
+  cliente_reservas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cliente_reservas
+    ports:
+      - "4200:80"
+    networks:
+      - springcloud-net
+
+  # Servicio de Hoteles
+  hotel:
+    image: hotel_image  # Imagen del microservicio hotel
+    container_name: hotel
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/agencia?serverTimezone=UTC
+    ports:
+      - "8081:8081"
+    networks:
+      - springcloud-net
+    depends_on:
+      - eureka_server
+      - mysql
+      - config_server
+
+  # Servicio de Reservas
+  # Instancia 1
+  reservas1:
+    image: reservas_image
+    container_name: reservas1
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/agencia?serverTimezone=UTC
+    ports:
+      - "8083:8083"  # Primer puerto
+    networks:
+      - springcloud-net
+    depends_on:
+      - eureka_server
+      - mysql
+      - config_server
+
+  # Instancia 2
+  reservas2:
+    image: reservas_image
+    container_name: reservas2
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/agencia?serverTimezone=UTC
+    ports:
+      - "8084:8083"  # Segundo puerto en el host
+    networks:
+      - springcloud-net
+    depends_on:
+      - eureka_server
+      - mysql
+      - config_server
+
+  # Servicio de Vuelos
+  vuelos:
+    image: vuelos_image  # Imagen del microservicio vuelos
+    container_name: vuelos
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/agencia?serverTimezone=UTC
+    ports:
+      - "8082:8082"
+    networks:
+      - springcloud-net
+    depends_on:
+      - eureka_server
+      - mysql
+      - config_server
+
+# Red compartida entre todos los servicios
+networks:
+  springcloud-net:
+    driver: bridge
+
+# Volúmenes persistentes
+volumes:
+  mysql-data:
+    driver: local

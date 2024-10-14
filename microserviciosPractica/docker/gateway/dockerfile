@@ -1,0 +1,7 @@
+FROM openjdk:17-jdk-alpine
+WORKDIR /app
+COPY gateway.jar /app/gateway.jar
+# Expone el puerto que utiliza el Config Server
+EXPOSE 9000
+
+ENTRYPOINT ["java", "-jar", "/app/gateway.jar"]

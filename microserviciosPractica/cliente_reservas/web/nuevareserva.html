@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div ng-app="reservas" ng-controller="reservasController" style="padding: 5px; marggin-left: 5px">
+    <h1>Nueva Reserva</h1>
+    <div class="form">
+        <div class="form-group">
+            <label>Reserva de Hotel</label>
+            <select class="form-control" id="idHotel" ng-model="hotel" ng-init="cargarHoteles()" required style="width:80%">
+                <option ng-repeat="h in hoteles" value="{{h.idHotel}}"> {{h.nombre}} </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Número de Plazas</label>
+            <input type="number" id="numPlazas" min="0" class="form-control" style="width:80%" ng-model="numPlazas">
+            <button type="button" class="btn btn-primary" ng-click="cargarVuelos(numPlazas)" style="width:80%">Buscar vuelo</button>
+        </div>
+
+        <div class="form-group">
+            <label>Reserva de Vuelo</label>
+            <select class="form-control" id="idVuelo" ng-model="vuelo" required style="width:80%">
+                <option ng-repeat="v in vuelos" value="{{v.idVuelo}}"> {{v.idVuelo}} - {{v.compania}} </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" ng-click="reservar()">Reservar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var app = angular.module("reservas", []);
+
+    app.controller("reservasController", function($scope, $http) {
+        // Inicializar variables
+        $scope.hoteles = [];
+        $scope.vuelos = [];
+        $scope.hotel = null;
+        $scope.vuelo = null;
+        $scope.numPlazas = 0;
+
+        // Función para cargar hoteles desde el microservicio
+        $scope.cargarHoteles = function() {
+            let url = "http://localhost:9000/shotel/hoteles";
+            $http.get(url)
+                .then(function(res) {
+                    $scope.hoteles = res.data;
+                })
+                .catch(function(error) {
+                    console.error("Error al cargar hoteles:", error);
+                });
+        };
+
+        // Función para cargar vuelos con plazas disponibles
+        $scope.cargarVuelos = function(numPlazas) {
+            if (numPlazas > 0) {
+                let url = "http://localhost:9000/svuelo/vuelos/" + numPlazas;
+                $http.get(url)
+                    .then(function(res) {
+                        $scope.vuelos = res.data;
+                    })
+                    .catch(function(error) {
+                        console.error("Error al cargar vuelos:", error);
+                    });
+            } else {
+                alert("Por favor, ingrese un número válido de plazas.");
+            }
+        };
+
+        // Función para realizar la reserva
+        $scope.reservar = function() {
+            if ($scope.hotel && $scope.vuelo && $scope.numPlazas > 0) {
+                let url = "http://localhost:9000/sreserva/reservar";
+                let datosReserva = {
+                    idHotel: $scope.hotel,
+                    idVuelo: $scope.vuelo,
+                    numPlazas: $scope.numPlazas
+                };
+
+                let username = "user3";
+                let password = "password3";
+                let authHeader = btoa(username + ":" + password);
+
+                $http.post(url, datosReserva, {
+                    headers: {
+                        'Authorization': 'Basic ' + authHeader,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(res) {
+                    alert("Reserva realizada con éxito");
+                })
+                .catch(function(error) {
+                    console.error("Error al realizar la reserva:", error);
+                    alert("Error al realizar la reserva");
+                });
+            } else {
+                alert("Por favor, complete todos los campos antes de reservar.");
+            }
+        };
+    });
+</script>
+</body>
+</html>
