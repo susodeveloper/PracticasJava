@@ -20,6 +20,9 @@ services:
   # Config Server
   config_server:
     image: config_server_image  # Imagen del config server
+    build:
+      context: ./config_server
+      dockerfile: dockerfile
     container_name: config_server
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -33,6 +36,9 @@ services:
   # Eureka Server
   eureka_server:
     image: eureka_server_image  # Imagen del eureka server
+    build:
+      context: ./eureka_server
+      dockerfile: dockerfile
     container_name: eureka_server
     ports:
       - "8761:8761"
@@ -44,6 +50,9 @@ services:
   # Gateway
   gateway:
     image: gateway_image  # Imagen del gateway
+    build:
+      context: ./gateway
+      dockerfile: dockerfile
     container_name: gateway
     ports:
       - "9000:9000"
@@ -56,8 +65,8 @@ services:
   # Servicio de Cliente de Reservas
   cliente_reservas:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./cliente_reservas
+      dockerfile: dockerfile
     container_name: cliente_reservas
     ports:
       - "4200:80"
@@ -67,6 +76,9 @@ services:
   # Servicio de Hoteles
   hotel:
     image: hotel_image  # Imagen del microservicio hotel
+    build:
+      context: ./hotel
+      dockerfile: dockerfile
     container_name: hotel
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -85,6 +97,9 @@ services:
   # Instancia 1
   reservas1:
     image: reservas_image
+    build:
+      context: ./reservas
+      dockerfile: dockerfile
     container_name: reservas1
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -102,6 +117,9 @@ services:
   # Instancia 2
   reservas2:
     image: reservas_image
+    build:
+      context: ./reservas
+      dockerfile: dockerfile
     container_name: reservas2
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -119,6 +137,9 @@ services:
   # Servicio de Vuelos
   vuelos:
     image: vuelos_image  # Imagen del microservicio vuelos
+    build:
+      context: ./vuelos
+      dockerfile: dockerfile
     container_name: vuelos
     environment:
       - SPRING_PROFILES_ACTIVE=prod
